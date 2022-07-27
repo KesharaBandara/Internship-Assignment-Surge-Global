@@ -1,75 +1,148 @@
-import User from "../models/user_model.js";
+const path = require("path");
+const express = require("express");
+const User = require("../model/user_model");
+const jwt = require("jsonwebtoken");
+const Router = express.Router();
 
-export const allUser = async (req, res) => {
+/**
+ * Add user member controller
+ * @param req
+ * @param res
+ * @returns {Promise<any>}
+ */
+
+Router.post(
+  "/insert",
+  async (req, res) => {
+    try {
+      const { firstName, lastName, email, dateOfBirth, mobile, status, password, accountType } = req.body;
+      const user = new User({
+        firstName,
+        lastName,
+        email,
+        dateOfBirth,
+        mobile,
+        status,
+        password,
+        accountType,
+      });
+      await user.save();
+      res.send("successfully new User added to the system.");
+    } catch (error) {
+      res
+        .status(400)
+        .send("Error while uploading User details. Try again later.");
+    }
+  },
+  (error, req, res, next) => {
+    if (error) {
+      res.status(500).send(error.message);
+    }
+  }
+);
+
+/**
+ * get all user member controller
+ * @param req
+ * @param res
+ * @returns {Promise<any>}
+ */
+
+Router.get("/getAllUsers", async (req, res) => {
   try {
-    const users = await User.find();
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    const files = await User.find({});
+    const sortedByCreationDate = files.sort(
+      (a, b) => b.createdAt - a.createdAt
+    );
+    res.send(sortedByCreationDate);
+  } catch (error) {
+    res
+      .status(400)
+      .send("Error while getting list of users. Try again later.");
   }
-};
+});
 
-export const oneUser = (req, res) => {
-  res.json(res.user);
-};
+/**
+ *search user member by name controller
+ * @param req
+ * @param res
+ * @returns {Promise<any>}
+ */
 
-export const createUser = async (req, res) => {
-  const user = new User({
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    dateOfBirth: req.body.dateOfBirth,
-    mobile: req.body.mobile,
-    status: req.body.status,
-    password: req.body.password,
-    accountType: req.body.accountType,
-  });
+Router.get("/searchStaff/:key", async (req, res) => {
   try {
-    const newUser = await user.save();
-    res.status(201).json(newUser);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
+    let key = req.params.key;
+    let query = { name: new RegExp(key, "i") };
+    console.log(query);
+    User.find(query, (err, result) => {
+      if (err) {
+        return next(err);
+      }
 
-export const updateUser = async (req, res) => {
-  if (req.body.firstName != null) {
-    res.user.firstName = req.body.firstName;
+      data = {
+        status: "success",
+        code: 200,
+        data: result,
+      };
+      res.json(data);
+    });
+  } catch (error) {
+    res
+      .status(400)
+      .send("Error while getting user member Details. Try again later.");
   }
-  if (req.body.lastName != null) {
-    res.user.lastName = req.body.lastName;
-  }
-  if (req.body.email != null) {
-    res.user.email = req.body.email;
-  }
-  if (req.body.dateOfBirth != null) {
-    res.user.dateOfBirth = req.body.dateOfBirth;
-  }
-  if (req.body.mobile != null) {
-    res.user.mobile = req.body.mobile;
-  }
-  if (req.body.status != null) {
-    res.user.status = req.body.status;
-  }
-  if (req.body.password != null) {
-    res.user.password = req.body.password;
-  }
-  if (req.body.accountType != null) {
-    res.user.accountType = req.body.accountType;
-  }
-  try {
-    const updatedUser = await res.user.save();
-    res.json(updatedUser);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
+});
 
-export const deleteUser = async (req, res) => {
+/**
+ *get user member by id controller
+ * @param req
+ * @param res
+ * @returns {Promise<any>}
+ */
+
+Router.get("/getstaffmember/:id", async (req, res) => {
   try {
-    await res.user.remove();
-    res.json({ message: "Deleted User" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    let id = req.params._id;
+    console.log(id);
+    const member = await User.find({ firstName: _id });
+    res.send(member);
+  } catch (error) {
+    res
+      .status(400)
+      .send("Error while getting list of user members. Try again later.");
   }
-};
+});
+
+/**
+ * update user member controller
+ * @param req
+ * @param res
+ * @returns {Promise<any>}
+ */
+
+Router.put("/:id",async (req, res) => {
+  try {
+    let user = await User.findById(req.params.id);
+    // Delete image from cloudinary
+    await cloudinary.uploader.destroy(user.cloudinary_id);
+    // Upload image to cloudinary
+    const data = {
+      firstName: req.body.firstName || user.firstName,
+      lastName: req.body.contact || user.lastName,
+      email: req.body.email || user.email,
+      dateOfBirth: req.body.address || user.dateOfBirth,
+      mobile: req.body.address || user.mobile,
+      status: req.body.address || user.status,
+      password: req.body.address || user.password,
+
+    };
+    user = await User.findByIdAndUpdate(req.params.id, data, { new: true });
+    res.json(user);
+  } catch (e) {
+    res.status(400).json({ msg: e.message, success: false });
+  }
+});
+
+
+
+module.exports = Router;

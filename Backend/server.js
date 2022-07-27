@@ -1,25 +1,52 @@
-import dotenv from "dotenv";
-import express from "express";
-import mongoose from "mongoose";
-import usersRouter from "./routes/user_router.js";
-import notesRouter from "./routes/note_router.js";
+const express = require("express");
+const mongoose = require("mongoose");
+const dotenv = require("dotenv");
+const cors = require("cors");
+const checkAuth = require("./middleware/auth");
+const UserRoute = require("./controllers/user_controller");
+const userLoginRoute = require("./controllers/userlogin_controller");
+const NoteRoute = require("./controllers/note_controller");
 
-const PORT = "5000";
+
 dotenv.config();
 const app = express();
+app.use(cors());
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-});
-app.use("/users", usersRouter);
-app.use("/notes", notesRouter);
+const PORT = process.env.PORT || 8070;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-app.listen(PORT, () =>
-  console.log(`Server is up and running on https://localhost:${PORT}`)
+mongoose.connect(
+  MONGODB_URI,
+  {
+    useCreateIndex: true,
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+  },
+  (error) => {
+    if (error) {
+      console.log("DataBase ERROR: ", error.message);
+    }
+  }
 );
 
-const db = mongoose.connection;
-db.on("error", (error) => console.error(error));
-db.once("open", () => console.log("Connected to Database"));
+mongoose.connection.once("open", () => {
+  console.log("Database Synced");
+});
+
+app.use("/userLogin", userLoginRoute);
+app.use(checkAuth);
+app.use("/NoteDetails", NoteRoute);
+app.use("/user", UserRoute);
+// app.use("/api/reservation", reservationRoute);
+// app.use("/api/return", returnBRoute);
+// app.use("/api/fine", fineRoute);
+// app.use("/barrow", barrowRoute);
+// app.use("/member", MembRoute);
+
+
+app.listen(PORT, () => {
+  console.log(`Server is running on PORT ${PORT}`);
+});
