@@ -18,7 +18,7 @@ import { API_URL } from "./Utils/constant";
  * inisial form input state
  * @type {{ email: string, password: string}}
  */
-const initialState = {_id:"", email: "", password: ""};
+const initialState = { _id: "", email: "", password: "" };
 
 /**
  * sign in and sign up component
@@ -57,20 +57,31 @@ const SignIn = () => {
     try {
       await axios.post(`${API_URL}/userLogin/signin`, formData).then((res) => {
         localStorage.setItem("token", res.data.token);
+        console.log(res.data.user);
+        let user = res.data.user;
+        if (user.accountType == 'admin') {
+          window.location.replace("/home");
+        } else {
+          if (user.status) {
+            window.location.replace("/resetdata");
+          } else {
+            window.location.replace("/note");
+          }
+        }
       });
-      try {
-        const { data } = await axios.get(
-          `${API_URL}/userLogin/getUser/${formData._id}`
-        );
-        setData(data[0]);
-        localStorage.setItem("userLogin", JSON.stringify({ formData: data[0] }));
-        setData(null);
-      } catch (error) {
-        console.log(error);
-      }
-      history.push("/home");
+      // try {
+      //   const { data } = await axios.get(
+      //     `${API_URL}/userLogin/getUser/${formData._id}`
+      //   );
+      //   setData(data[0]);
+      //   localStorage.setItem("userLogin", JSON.stringify({ formData: data[0] }));
+      //   setData(null);
+      // } catch (error) {
+      //   console.log(error);
+      // }
+      // history.push("/home");
       console.log(formData);
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.log(error);
     }
@@ -88,9 +99,9 @@ const SignIn = () => {
       case "email":
         errors.email =
           value.length <= 0 ? "Email Can not be empty! Ex:- Example@gmail.com" : "";
-          if (validEmail.test(value)) {
-            errors.eid = "Enter valid Email! Ex:- Example@gmail.com";
-          }
+        if (validEmail.test(value)) {
+          errors.eid = "Enter valid Email! Ex:- Example@gmail.com";
+        }
         break;
       case "password":
         errors.password = value.length <= 0 ? "Password can not be empty!" : "";

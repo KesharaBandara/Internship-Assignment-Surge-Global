@@ -7,15 +7,17 @@ const Router = express.Router();
 Router.post(
   "/insert",
   async (req, res) => {
+    console.log(req.body);
+
     try {
-      const { title, description} = req.body;
-      const note = new Note({
-        title,
-        description,
+      const note = new Note(req.body);
+      await note.save().then((result) => {
+        console.log(result);
+        res.send("successful");
       });
-      await note.save();
-      res.send("successfull.");
+
     } catch (error) {
+      console.log(error);
       res
         .status(400)
         .send("Error while uploading. Try again later.");
@@ -80,7 +82,7 @@ Router.get("/searchNote/:key", async (req, res) => {
 //   }
 // });
 
-Router.put("/:id",async (req, res) => {
+Router.put("/:id", async (req, res) => {
   try {
     let note = await Note.findById(req.params.id);
     const data = {

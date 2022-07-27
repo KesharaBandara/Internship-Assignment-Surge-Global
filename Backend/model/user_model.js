@@ -4,35 +4,35 @@ const Schema = mongoose.Schema;
 let User = new Schema(
   {
     firstName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
-      email: {
-        type: String,
-        required: true,
-      },
-      dateOfBirth: {
-        type: Date,
+      type: String,
+    },
+    lastName: {
+      type: String,
+    },
+    email: {
+      type: String,
+      required: true,
+    },
+    dateOfBirth: {
+      type: Date,
 
-      },
-      mobile: {
-        type: Number,
+    },
+    mobile: {
+      type: Number,
 
-      },
-      status: {
-        type: Boolean,
+    },
+    status: {
+      type: Boolean,
+      default: false
+    },
+    password: {
+      type: String,
 
-      },
-      password: {
-        type: String,
+    },
+    accountType: {
+      type: String,
 
-      },
-      accountType: {
-        type: String,
-
-      },
+    },
   },
   {
     timestamps: true,

@@ -145,7 +145,9 @@ export default function AddReservation() {
           },
         })
         .then((res) => {
-          if (res.data.success) {
+          console.log(res.data);
+
+          if (res.data == 'successful') {
             setTitle("");
             setDescription("");
             setSuccessMsg("Successfully inserted");
@@ -194,13 +196,13 @@ export default function AddReservation() {
                       </div>
                     </>
                   ) : (
-                    <>
-                      <div style={{ color: "#aa202b" }}>
-                        <ClearIcon />
-                        {errorMsg}
-                      </div>
-                    </>
-                  )}
+                      <>
+                        <div style={{ color: "#aa202b" }}>
+                          <ClearIcon />
+                          {errorMsg}
+                        </div>
+                      </>
+                    )}
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -237,14 +239,14 @@ export default function AddReservation() {
             autoFocus
           />
           {errors.description && (
-            <span className="error">{errors.description}</span> 
+            <span className="error">{errors.description}</span>
           )}
 
           <div className={classes.btnGroup}>
             <Button
               id="btnBack"
               type="button"
-              onClick={history.goBack}
+              onClick={() => { history.push('/note') }}
               fullWidth
               variant="contained"
               color="primary"

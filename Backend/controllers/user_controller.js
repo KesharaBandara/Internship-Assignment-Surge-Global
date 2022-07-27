@@ -3,6 +3,8 @@ const express = require("express");
 const User = require("../model/user_model");
 const jwt = require("jsonwebtoken");
 const Router = express.Router();
+const Mailer = require('./mail_controller.js');
+
 
 /**
  * Add user member controller
@@ -15,6 +17,8 @@ Router.post(
   "/insert",
   async (req, res) => {
     try {
+      console.log(req.body);
+
       const { firstName, lastName, email, dateOfBirth, mobile, status, password, accountType } = req.body;
       const user = new User({
         firstName,
@@ -26,9 +30,18 @@ Router.post(
         password,
         accountType,
       });
-      await user.save();
-      res.send("successfully new User added to the system.");
+      await user.save().then((result) => {
+        console.log(result);
+        Mailer.newaccount([email, password])
+        res.send("successfully new User added to the system.");
+      }).catch((err) => {
+        console.log(err);
+
+      })
+
     } catch (error) {
+      console.log(error);
+
       res
         .status(400)
         .send("Error while uploading User details. Try again later.");
@@ -49,11 +62,14 @@ Router.post(
  */
 
 Router.get("/getAllUsers", async (req, res) => {
+
   try {
     const files = await User.find({});
+
     const sortedByCreationDate = files.sort(
       (a, b) => b.createdAt - a.createdAt
     );
+
     res.send(sortedByCreationDate);
   } catch (error) {
     res
@@ -120,11 +136,11 @@ Router.get("/getstaffmember/:id", async (req, res) => {
  * @returns {Promise<any>}
  */
 
-Router.put("/:id",async (req, res) => {
+Router.put("/:id", async (req, res) => {
   try {
     let user = await User.findById(req.params.id);
     // Delete image from cloudinary
-    await cloudinary.uploader.destroy(user.cloudinary_id);
+    // await cloudinary.uploader.destroy(user.cloudinary_id);
     // Upload image to cloudinary
     const data = {
       firstName: req.body.firstName || user.firstName,
@@ -136,13 +152,36 @@ Router.put("/:id",async (req, res) => {
       password: req.body.address || user.password,
 
     };
-    user = await User.findByIdAndUpdate(req.params.id, data, { new: true });
-    res.json(user);
+    await User.findByIdAndUpdate(req.params.id, data, { new: true }).then((result) => {
+      console.log(result);
+      res.json(user);
+    })
+
   } catch (e) {
+    console.log(e);
     res.status(400).json({ msg: e.message, success: false });
   }
 });
 
+
+Router.delete("/:id", async (req, res, next) => {
+  try {
+    let user = await User.findById(req.params.id);
+    // Delete image from cloudinary
+    // await cloudinary.uploader.destroy(user.cloudinary_id);
+    // Upload image to cloudinary
+    user.remove((err, result) => {
+      if (err) { return next(err) }
+
+      res.json(result);
+
+    })
+
+  } catch (e) {
+    console.log(e);
+    res.status(400).json({ msg: e.message, success: false });
+  }
+});
 
 
 module.exports = Router;

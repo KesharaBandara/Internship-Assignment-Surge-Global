@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, Fragment } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
@@ -8,7 +8,10 @@ import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
-import { DatePicker } from "@material-ui/pickers";
+import { DatePicker, KeyboardDatePicker, LocalizationProvider, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import MomentAdapter from "@material-ui/pickers/adapter/moment";
+import momentTimezone from "moment-timezone";
+import DateFnsUtils from '@date-io/date-fns';
 
 import axios from "axios";
 import { API_URL } from "./Utils/constant";
@@ -101,14 +104,13 @@ const AddUser = (props) => {
   let history = useHistory();
   const classes = useStyles();
   const [state, setState] = useState({
-    fName: "",
-    lName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     mobile: "",
-    status: "",
     accountType: "",
     password: "",
-    dateOfBirth:new Date(),
+    dateOfBirth: new Date(),
     errors: {
       email: "",
       password: "",
@@ -125,20 +127,23 @@ const AddUser = (props) => {
     try {
       const { email, password } = state;
       if (email.trim() !== "" && password.trim() !== "") {
-        const formData = new FormData();
-        formData.append("email", email);
-        formData.append("password", password);
+        console.log(state);
 
-        await axios.post(`${API_URL}/user/insert`, formData, {
+        await axios.post(`${API_URL}/user/insert`, state, {
           headers: {
-            "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
-        });
+        }).then(() => {
+          setSuccessMsg("upload Success");
+          setState(initialState);
+        }).catch((err) => {
+          console.log(err);
+          setErrorMsg("Please enter all the field values.");
+        })
 
-        setSuccessMsg("upload Success");
+
       } else {
-        setErrorMsg("Please enter all the field values.");
+
       }
     } catch (error) {
       error.response && setErrorMsg(error.response.data);
@@ -233,13 +238,13 @@ const AddUser = (props) => {
                         </div>
                       </>
                     ) : (
-                      <>
-                        <div style={{ color: "#aa202b" }}>
-                          <ClearIcon />
-                          {errorMsg}
-                        </div>
-                      </>
-                    )}
+                        <>
+                          <div style={{ color: "#aa202b" }}>
+                            <ClearIcon />
+                            {errorMsg}
+                          </div>
+                        </>
+                      )}
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -256,10 +261,10 @@ const AddUser = (props) => {
               fullWidth
               id="firstName"
               label="First Name"
-              name="fName"
-              autoComplete="fName"
+              name="firstName"
+              autoComplete="firstName"
               autoFocus
-              value={state.fName || ""}
+              value={state.firstName || ""}
               onChange={handleInputChange}
             />
             <TextField
@@ -267,12 +272,12 @@ const AddUser = (props) => {
               margin="normal"
               required
               fullWidth
-              id="lName"
+              id="lastName"
               label="Last Name"
-              name="lName"
-              autoComplete="lName"
+              name="lastName"
+              autoComplete="lastName"
               autoFocus
-              value={state.lName || ""}
+              value={state.lastName || ""}
               onChange={handleInputChange}
             />
 
@@ -289,19 +294,37 @@ const AddUser = (props) => {
               value={state.email || ""}
               onChange={handleInputChange}
             />
-            
+
 
             {errors.email.length > 0 && (
               <span className="error">{errors.email}</span>
             )}
 
-
-<DatePicker
-        label="Basic example"
-        value={selectedDate}
-        onChange={handleDateChange}
-        animateYearScrolling
-      />
+            <TextField
+              variant="outlined"
+              margin="normal"
+              required
+              fullWidth
+              type="date"
+              placeholder=""
+              id="email"
+              label="Date Of Birth"
+              name="dateOfBirth"
+              autoFocus
+              value={state.dateOfBirth || ""}
+              onChange={handleInputChange}
+            />
+            {/* <LocalizationProvider dateAdapter={DateFnsUtils}>
+              <DatePicker
+                autoOk
+                variant="inline"
+                inputVariant="outlined"
+                label="With keyboard"
+                format="MM/dd/yyyy"
+                value={selectedDate}
+                onChange={date => handleDateChange(date)}
+              />
+            </LocalizationProvider> */}
             <TextField
               variant="outlined"
               margin="normal"
@@ -313,20 +336,6 @@ const AddUser = (props) => {
               autoComplete="mobile"
               autoFocus
               value={state.mobile || ""}
-              onChange={handleInputChange}
-            />
-
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="status"
-              label="Status"
-              name="status"
-              autoComplete="status"
-              autoFocus
-              value={state.status || ""}
               onChange={handleInputChange}
             />
 
@@ -366,7 +375,7 @@ const AddUser = (props) => {
               <Button
                 id="btnBack"
                 type="button"
-                onClick={history.goBack}
+                onClick={() => { history.push("/home") }}
                 fullWidth
                 variant="contained"
                 color="primary"
