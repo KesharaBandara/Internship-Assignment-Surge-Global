@@ -110,7 +110,7 @@ const AddUser = (props) => {
     lastName: "",
     email: "",
     mobile: "",
-    accountType: "",
+    accountType: "admin",
     password: "",
     dateOfBirth: new Date(),
     errors: {
@@ -121,14 +121,16 @@ const AddUser = (props) => {
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [open, setOpen] = useState(false);
-  const [selectedDate, handleDateChange] = useState(new Date());
+  const [validEmail, setValidEmail] = useState(false);
+  const [validPassword, setValidPassword] = useState(false);
+
 
   const handleOnSubmit = async (event) => {
     event.preventDefault();
     setOpen(true);
     try {
       const { email, password } = state;
-      if (email.trim() !== "" && password.trim() !== "") {
+      if (email.trim() !== "" && password.trim() !== "" && validEmail && validPassword) {
         console.log(state);
 
         await axios.post(`${API_URL}/user/insert`, state, {
@@ -142,10 +144,8 @@ const AddUser = (props) => {
           console.log(err);
           setErrorMsg("Please enter all the field values.");
         })
-
-
       } else {
-
+        setErrorMsg("Please enter valid values.");
       }
     } catch (error) {
       error.response && setErrorMsg(error.response.data);
@@ -158,6 +158,8 @@ const AddUser = (props) => {
   const handleInputChange = (event) => {
     event.preventDefault();
     const { name, value } = event.target;
+    console.log(name, value);
+
     let errors = state.errors;
     const validEmail = RegExp(/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/);
     const validPassword = RegExp(
@@ -172,7 +174,8 @@ const AddUser = (props) => {
             : "";
         if (!validEmail.test(value)) {
           errors.email = "Enter valid Email ! Ex:- jhon@mail.com";
-        }
+          setValidEmail(false)
+        } else { setValidEmail(true) }
         break;
       case "password":
         errors.password = value.length <= 0 ? "Password can not be empty!" : "";
@@ -180,7 +183,8 @@ const AddUser = (props) => {
         if (!validPassword.test(value)) {
           errors.password =
             "Password must be cantain 1 Capital letter , 1 special charectar , 1 digit and 8 charectars long  ! Ex:- A@1aaaaa";
-        }
+          setValidPassword(false)
+        } else { setValidPassword(true) }
         break;
       default:
         break;
@@ -265,7 +269,6 @@ const AddUser = (props) => {
               label="First Name"
               name="firstName"
               autoComplete="firstName"
-              autoFocus
               value={state.firstName || ""}
               onChange={handleInputChange}
             />
@@ -278,7 +281,6 @@ const AddUser = (props) => {
               label="Last Name"
               name="lastName"
               autoComplete="lastName"
-              autoFocus
               value={state.lastName || ""}
               onChange={handleInputChange}
             />
@@ -292,7 +294,6 @@ const AddUser = (props) => {
               label="E- mail address"
               name="email"
               autoComplete="email"
-              autoFocus
               value={state.email || ""}
               onChange={handleInputChange}
             />
@@ -314,7 +315,6 @@ const AddUser = (props) => {
               id="email"
               label="Date Of Birth"
               name="dateOfBirth"
-              autoFocus
               value={state.dateOfBirth || ""}
               onChange={handleInputChange}
             />
@@ -338,7 +338,6 @@ const AddUser = (props) => {
               label="Mobile"
               name="mobile"
               autoComplete="mobile"
-              autoFocus
               value={state.mobile || ""}
               onChange={handleInputChange}
             />
@@ -351,8 +350,8 @@ const AddUser = (props) => {
               id="password"
               label="Password"
               name="password"
+              type='password'
               autoComplete="password"
-              autoFocus
               value={state.password || ""}
               onChange={handleInputChange}
             />
@@ -381,11 +380,11 @@ const AddUser = (props) => {
               id="accountType"
               label="Account Type"
               name="accountType"
-              value='admin'
+              defaultValue='admin'
               onChange={handleInputChange}
             >
-              <MenuItem value='admin'>Staff</MenuItem>
-              <MenuItem value='student'>student</MenuItem>
+              <MenuItem value='admin'>Admin</MenuItem>
+              <MenuItem value='student'>Student</MenuItem>
             </Select>
 
             <div className={classes.btnGroup}>

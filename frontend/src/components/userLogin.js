@@ -16,9 +16,9 @@ import { API_URL } from "./Utils/constant";
 
 /**
  * inisial form input state
- * @type {{ email: string, password: string}}
+ * @type {{ email: string, password: string, login: string}}
  */
-const initialState = { _id: "", email: "", password: "" };
+const initialState = { _id: "", email: "", password: "", login: '' };
 
 /**
  * sign in and sign up component
@@ -41,6 +41,7 @@ const SignIn = () => {
   const [formData, setFormData] = useState(initialState);
   const [data, setData] = useState([]);
   const [errors, setErrors] = useState(initialState);
+  const [isfailedLogin, setfailedLogin] = useState(false);
 
   /**
    * password visibility togle
@@ -59,6 +60,7 @@ const SignIn = () => {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("userData", JSON.stringify(res.data.user));
         console.log(res.data.user);
+        setfailedLogin(false)
         let user = res.data.user;
         if (!user.status) {
           window.location.replace("/resetuser");
@@ -85,6 +87,7 @@ const SignIn = () => {
       // window.location.reload();
     } catch (error) {
       console.log(error);
+      setfailedLogin(true)
     }
   };
 
@@ -127,7 +130,7 @@ const SignIn = () => {
           <Grid container spacing={2}>
             <InputField
               name="email"
-              label="Employee ID"
+              label="Email"
               handleOnchange={onchange}
               type="text"
             />
@@ -156,6 +159,9 @@ const SignIn = () => {
           >
             {isSignUp ? "Sign Up" : "Sign In"}
           </Button>
+          {isfailedLogin && (
+            <span className="error">Invalid Credentials</span>
+          )}
           <hr />
         </form>
       </Paper>

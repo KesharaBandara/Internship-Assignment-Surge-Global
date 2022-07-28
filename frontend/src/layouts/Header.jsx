@@ -12,6 +12,7 @@ export default function header() {
     localStorage.removeItem("token");
     window.location.replace('/login')
   }
+  let token = localStorage.getItem("token");
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
@@ -28,9 +29,9 @@ export default function header() {
           <Typography variant="h4" component="div" sx={{ flexGrow: 1 }} align="left">
             MyNotes
           </Typography>
-          <Button component="div" sx={{ flexGrow: 1 }} align="right" onClick={() => { userLogout() }}>
+          {token ? <Button component="div" sx={{ flexGrow: 1 }} align="right" onClick={() => { userLogout() }}>
             Logout
-          </Button>
+          </Button> : <></>}
         </Toolbar>
       </AppBar>
     </Box>

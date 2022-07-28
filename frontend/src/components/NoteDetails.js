@@ -82,8 +82,17 @@ const NoteTable = (props) => {
   //get all book details
   useEffect(() => {
     const getFileList = async () => {
+      let userdata = JSON.parse(localStorage.getItem('userData'));
+      let apiurl = ''
+      console.log(userdata);
+
       try {
-        const { data } = await axios.get(`${API_URL}/NoteDetails/getAllNotes`, {
+        if (userdata.accountType == 'admin') {
+          apiurl = `${API_URL}/NoteDetails/getAllNotes`
+        } else {
+          apiurl = `${API_URL}/NoteDetails/getUserNotes/${userdata._id}`
+        }
+        const { data } = await axios.get(apiurl, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },

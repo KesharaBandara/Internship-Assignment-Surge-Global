@@ -132,11 +132,14 @@ export default function AddReservation() {
 
   //submit the form
   const onSubmit = () => {
+    let userdata = JSON.parse(localStorage.getItem('userData'));
+
     if (validate()) {
       setOpen(true);
       const note = {
         title: title,
         description: description,
+        userid: userdata._id
       };
       axios
         .post(`${API_URL}/NoteDetails/insert`, note, {

@@ -33,7 +33,23 @@ Router.post(
 
 Router.get("/getAllNotes", async (req, res) => {
   try {
+    let id = req.params.id
     const files = await Note.find({});
+    const sortedByCreationDate = files.sort(
+      (a, b) => b.createdAt - a.createdAt
+    );
+    res.send(sortedByCreationDate);
+  } catch (error) {
+    res
+      .status(400)
+      .send("Error while getting list of Notes. Try again later.");
+  }
+});
+
+Router.get("/getUserNotes/:id", async (req, res) => {
+  try {
+    let id = req.params.id
+    const files = await Note.find({ userid: id });
     const sortedByCreationDate = files.sort(
       (a, b) => b.createdAt - a.createdAt
     );
