@@ -45,7 +45,7 @@ const useStyles = makeStyles((theme) => ({
   },
   image: {
     backgroundImage:
-      "url(https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Biblioth%C3%A8que_de_l%27Assembl%C3%A9e_Nationale_%28Lunon%29.jpg/1024px-Biblioth%C3%A8que_de_l%27Assembl%C3%A9e_Nationale_%28Lunon%29.jpg)",
+      "url(https://www.easysnackstomake.net/wp-content/uploads/2021/12/thank-you-note.jpg)",
     backgroundRepeat: "no-repeat",
     backgroundColor:
       theme.palette.type === "light"

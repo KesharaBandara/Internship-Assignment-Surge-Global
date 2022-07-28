@@ -60,7 +60,7 @@ const useStyles = makeStyles((theme) => ({
   },
   image: {
     backgroundImage:
-      "url(https://2wanderlust.files.wordpress.com/2013/11/slide_321715_3023940_free.jpg)",
+      "url(https://images.unsplash.com/photo-1517842645767-c639042777db?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80)",
     backgroundRepeat: "no-repeat",
     backgroundColor:
       theme.palette.type === "light"
