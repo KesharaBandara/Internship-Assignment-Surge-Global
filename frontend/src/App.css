@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+.dobtxt .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline{
+  border-color: rgba(0, 0, 0, 0.23);
+}
+
+.css-1in441m{
+  height: 20px !important;
+}
+
+.css-1in441m span{
+  opacity: 1 !important;
+}

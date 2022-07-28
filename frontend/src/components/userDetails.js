@@ -4,8 +4,54 @@ import { API_URL } from "./Utils/constant";
 import "./viewUser.css";
 import MaterialTable from "material-table";
 import Button from "@material-ui/core/Button";
-import { Grid } from "@material-ui/core";
+import moment from 'moment'
 import Alert from "@material-ui/lab/Alert";
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import Typography from '@mui/material/Typography';
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
+const BootstrapDialogTitle = (props) => {
+  const { children, onClose, ...other } = props;
+
+  return (
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+};
+
+BootstrapDialogTitle.propTypes = {
+  children: PropTypes.node,
+  onClose: PropTypes.func.isRequired,
+};
 
 const Editable = (props) => {
   const { useState } = React;
@@ -15,6 +61,33 @@ const Editable = (props) => {
   const [successMsg, setSuccessMsg] = useState([]);
   const [issucc, setIssucc] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [rowDataModal, setRowDataModal] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    mobile: "",
+    accountType: "",
+    password: "",
+    dateOfBirth: "",
+  })
+
+  const handleClickOpen = (data) => {
+    console.log(data);
+    setRowDataModal({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      mobile: data.mobile,
+      accountType: data.accountType,
+      password: data.password,
+      dateOfBirth: data.dateOfBirth,
+    })
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   //get all book details
   useEffect(() => {
@@ -118,6 +191,27 @@ const Editable = (props) => {
       <h1 id="h12" align="center">
         User Details
       </h1>
+      <BootstrapDialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+        fullWidth={true}
+      >
+        <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+          User Details
+        </BootstrapDialogTitle>
+        <DialogContent dividers>
+          <Typography gutterBottom>
+            <b>First Name: </b>{rowDataModal.firstName}<br />
+            <b>last Name: </b>{rowDataModal.lastName}<br />
+            <b>Email: </b>{rowDataModal.email}<br />
+            <b>Mobile: </b>{rowDataModal.mobile}<br />
+            <b>Account Type: </b>{rowDataModal.accountType}<br />
+            <b>Date Of Birth: </b>{moment(rowDataModal.dateOfBirth).format('DD-MM-YYYY')}<br />
+          </Typography>
+        </DialogContent>
+      </BootstrapDialog>
+
       <div className="tbl">
         <div>
           {iserror && (
@@ -161,7 +255,8 @@ const Editable = (props) => {
                 handleRowDelete(oldData, resolve);
               }),
           }}
-          onRowClick={((evt, selectedRow) => setSelectedRow(selectedRow.tableData.id))}
+          onRowClick={(event, rowData) => handleClickOpen(rowData)}
+          // onRowClick={((evt, selectedRow) => setSelectedRow(selectedRow.tableData.id))}
           options={{
             headerStyle: {
               backgroundColor: "rgba(8, 9, 80, 0.363)",

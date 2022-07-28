@@ -4,7 +4,7 @@ const User = require("../model/user_model");
 const jwt = require("jsonwebtoken");
 const Router = express.Router();
 const Mailer = require('./mail_controller.js');
-
+const bcrypt = require('bcrypt')
 
 /**
  * Add user member controller
@@ -20,6 +20,7 @@ Router.post(
       console.log(req.body);
 
       const { firstName, lastName, email, dateOfBirth, mobile, status, password, accountType } = req.body;
+      let hashpassword = await bcrypt.hash(req.body.password, 12);
       const user = new User({
         firstName,
         lastName,
@@ -27,7 +28,7 @@ Router.post(
         dateOfBirth,
         mobile,
         status,
-        password,
+        password: hashpassword,
         accountType,
       });
       await user.save().then((result) => {
@@ -137,6 +138,10 @@ Router.get("/getstaffmember/:id", async (req, res) => {
  */
 
 Router.put("/:id", async (req, res) => {
+  console.log(req.params.id);
+  console.log(req.body);
+  console.log('----------------ssss');
+  let password = await bcrypt.hash(req.body.password, 12);
   try {
     let user = await User.findById(req.params.id);
     // Delete image from cloudinary
@@ -144,12 +149,12 @@ Router.put("/:id", async (req, res) => {
     // Upload image to cloudinary
     const data = {
       firstName: req.body.firstName || user.firstName,
-      lastName: req.body.contact || user.lastName,
+      lastName: req.body.lastName || user.lastName,
       email: req.body.email || user.email,
-      dateOfBirth: req.body.address || user.dateOfBirth,
-      mobile: req.body.address || user.mobile,
-      status: req.body.address || user.status,
-      password: req.body.address || user.password,
+      dateOfBirth: req.body.dateOfBirth || user.dateOfBirth,
+      mobile: req.body.mobile || user.mobile,
+      status: req.body.status || user.status,
+      password: password || user.password,
 
     };
     await User.findByIdAndUpdate(req.params.id, data, { new: true }).then((result) => {

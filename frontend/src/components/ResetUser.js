@@ -1,4 +1,4 @@
-import React, { useState, useRef, Fragment } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
@@ -7,13 +7,8 @@ import Grid from "@material-ui/core/Grid";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import Typography from "@material-ui/core/Typography";
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import { makeStyles } from "@material-ui/core/styles";
-import { DatePicker, KeyboardDatePicker, LocalizationProvider, MuiPickersUtilsProvider } from "@material-ui/pickers";
-import MomentAdapter from "@material-ui/pickers/adapter/moment";
-import momentTimezone from "moment-timezone";
-import DateFnsUtils from '@date-io/date-fns';
+import moment from 'moment';
 
 import axios from "axios";
 import { API_URL } from "./Utils/constant";
@@ -26,8 +21,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Draggable from "react-draggable";
-
-
 
 /**
  * draggable dialog component
@@ -59,8 +52,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   image: {
-    backgroundImage:
-      "url(https://2wanderlust.files.wordpress.com/2013/11/slide_321715_3023940_free.jpg)",
     backgroundRepeat: "no-repeat",
     backgroundColor:
       theme.palette.type === "light"
@@ -102,17 +93,16 @@ const initialState = {
     password: "",
   },
 };
-const AddUser = (props) => {
+const UpdateUser = (props) => {
   let history = useHistory();
   const classes = useStyles();
   const [state, setState] = useState({
     firstName: "",
     lastName: "",
-    email: "",
     mobile: "",
-    accountType: "",
+    dateOfBirth: '',
     password: "",
-    dateOfBirth: new Date(),
+    status: true,
     errors: {
       email: "",
       password: "",
@@ -124,28 +114,39 @@ const AddUser = (props) => {
   const [selectedDate, handleDateChange] = useState(new Date());
 
   const handleOnSubmit = async (event) => {
+    console.log('ss');
+
     event.preventDefault();
     setOpen(true);
     try {
-      const { email, password } = state;
-      if (email.trim() !== "" && password.trim() !== "") {
+      const { password, status } = state;
+      console.log(password.trim());
+      await setState({ ...state, status: true })
+
+      if (password.trim() !== "") {
         console.log(state);
+        let userdata = JSON.parse(localStorage.getItem('userData'));
 
-        await axios.post(`${API_URL}/user/insert`, state, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }).then(() => {
-          setSuccessMsg("upload Success");
-          setState(initialState);
-        }).catch((err) => {
-          console.log(err);
-          setErrorMsg("Please enter all the field values.");
-        })
-
-
+        await axios
+          .put(`${API_URL}/user/${userdata._id}`, state, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            setSuccessMsg("Details Updated Successfully");
+            if (userdata.accountType == 'admin') {
+              history.push('/home')
+            } else {
+              history.push('/note')
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            setErrorMsg("Please enter all the field values.");
+          });
       } else {
-
       }
     } catch (error) {
       error.response && setErrorMsg(error.response.data);
@@ -205,14 +206,27 @@ const AddUser = (props) => {
 
   const { errors } = state;
 
+  useEffect(() => {
+    let userdata = JSON.parse(localStorage.getItem('userData'));
+    console.log(userdata);
+    setState({
+      ...state,
+      firstName: userdata.firstName,
+      lastName: userdata.lastName,
+      mobile: userdata.mobile,
+      dateOfBirth: moment(userdata.dateOfBirth).format('YYYY-MM-DD')
+    })
+
+  }, [])
+
   return (
     <Grid container component="main" className={classes.root}>
       <CssBaseline />
-      <Grid item xs={false} sm={4} md={6} className={classes.image} />
-      <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
+
+      <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square style={{ height: 'fit-content', marginLeft: 'auto', marginRight: 'auto' }}>
         <div className={classes.paper}>
           <Typography component="h1" variant="h5">
-            Add New User
+            Update Your Details
           </Typography>
           <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
             <div className={classes.alert}>
@@ -287,48 +301,17 @@ const AddUser = (props) => {
               variant="outlined"
               margin="normal"
               required
-              fullWidth
-              id="email"
-              label="E- mail address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={state.email || ""}
-              onChange={handleInputChange}
-            />
-
-
-            {errors.email.length > 0 && (
-              <span className="error">{errors.email}</span>
-            )}
-
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
               focused
               className='dobtxt'
+              fullWidth
               type="date"
-              placeholder=""
               id="email"
               label="Date Of Birth"
               name="dateOfBirth"
-              autoFocus
-              value={state.dateOfBirth || ""}
+              value={state.dateOfBirth}
               onChange={handleInputChange}
             />
-            {/* <LocalizationProvider dateAdapter={DateFnsUtils}>
-              <DatePicker
-                autoOk
-                variant="inline"
-                inputVariant="outlined"
-                label="With keyboard"
-                format="MM/dd/yyyy"
-                value={selectedDate}
-                onChange={date => handleDateChange(date)}
-              />
-            </LocalizationProvider> */}
+
             <TextField
               variant="outlined"
               margin="normal"
@@ -349,7 +332,8 @@ const AddUser = (props) => {
               required
               fullWidth
               id="password"
-              label="Password"
+              type='password'
+              label="New Password"
               name="password"
               autoComplete="password"
               autoFocus
@@ -361,45 +345,7 @@ const AddUser = (props) => {
               <span className="error">{errors.password}</span>
             )}
 
-            {/* <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="accountType"
-              label="Account Type"
-              name="accountType"
-              autoComplete="accountType"
-              autoFocus
-              value={state.accountType || ""}
-              onChange={handleInputChange}
-            /> */}
-            <Select
-              variant="outlined"
-              required
-              fullWidth
-              id="accountType"
-              label="Account Type"
-              name="accountType"
-              value='admin'
-              onChange={handleInputChange}
-            >
-              <MenuItem value='admin'>Staff</MenuItem>
-              <MenuItem value='student'>student</MenuItem>
-            </Select>
-
             <div className={classes.btnGroup}>
-              <Button
-                id="btnBack"
-                type="button"
-                onClick={() => { history.push("/home") }}
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.back}
-              >
-                Back
-              </Button>
 
               <Button
                 id="btnSave"
@@ -412,16 +358,6 @@ const AddUser = (props) => {
                 Save
               </Button>
 
-              <Button
-                type="reset"
-                fullWidth
-                variant="contained"
-                color="secondary"
-                onClick={reload}
-                className={classes.clear}
-              >
-                Clear
-              </Button>
             </div>
           </form>
         </div>
@@ -430,4 +366,4 @@ const AddUser = (props) => {
   );
 };
 
-export default AddUser;
+export default UpdateUser;

@@ -3,6 +3,7 @@ const express = require("express");
 const User = require("../model/user_model");
 const jwt = require("jsonwebtoken");
 const Router = express.Router();
+const bcrypt = require('bcrypt')
 
 /**
  * sign in controller
@@ -13,12 +14,16 @@ const Router = express.Router();
 
 Router.post("/signin", async (req, res) => {
   const { email, password } = req.body;
+  console.log(password);
 
   try {
     //find user by email
     const getUser = await User.findOne({ email });
     if (!getUser) return res.status(404).json({ message: "Account not found" });
-    if (password != getUser.password)
+    let isMatch = await bcrypt.compare(password, getUser.password);
+    console.log(isMatch);
+
+    if (!isMatch)
       return res.status(404).json({ message: "Invalid password" });
 
     if (getUser) {

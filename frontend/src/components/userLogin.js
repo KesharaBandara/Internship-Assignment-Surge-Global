@@ -57,13 +57,14 @@ const SignIn = () => {
     try {
       await axios.post(`${API_URL}/userLogin/signin`, formData).then((res) => {
         localStorage.setItem("token", res.data.token);
+        localStorage.setItem("userData", JSON.stringify(res.data.user));
         console.log(res.data.user);
         let user = res.data.user;
-        if (user.accountType == 'admin') {
-          window.location.replace("/home");
+        if (!user.status) {
+          window.location.replace("/resetuser");
         } else {
-          if (user.status) {
-            window.location.replace("/resetdata");
+          if (user.accountType == 'admin') {
+            window.location.replace("/home");
           } else {
             window.location.replace("/note");
           }

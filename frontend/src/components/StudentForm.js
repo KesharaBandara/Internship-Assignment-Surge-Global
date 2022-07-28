@@ -7,8 +7,6 @@ import Grid from "@material-ui/core/Grid";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import Typography from "@material-ui/core/Typography";
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import { makeStyles } from "@material-ui/core/styles";
 import { DatePicker, KeyboardDatePicker, LocalizationProvider, MuiPickersUtilsProvider } from "@material-ui/pickers";
 import MomentAdapter from "@material-ui/pickers/adapter/moment";
@@ -102,19 +100,19 @@ const initialState = {
     password: "",
   },
 };
-const AddUser = (props) => {
+const studentform = (props) => {
   let history = useHistory();
   const classes = useStyles();
   const [state, setState] = useState({
     firstName: "",
     lastName: "",
-    email: "",
+    // email: "",
     mobile: "",
-    accountType: "",
+    // accountType: "",
     password: "",
     dateOfBirth: new Date(),
     errors: {
-      email: "",
+    //   email: "",
       password: "",
     },
   });
@@ -212,7 +210,7 @@ const AddUser = (props) => {
       <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
         <div className={classes.paper}>
           <Typography component="h1" variant="h5">
-            Add New User
+            Update Your Details
           </Typography>
           <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
             <div className={classes.alert}>
@@ -283,7 +281,7 @@ const AddUser = (props) => {
               onChange={handleInputChange}
             />
 
-            <TextField
+            {/* <TextField
               variant="outlined"
               margin="normal"
               required
@@ -300,15 +298,13 @@ const AddUser = (props) => {
 
             {errors.email.length > 0 && (
               <span className="error">{errors.email}</span>
-            )}
+            )} */}
 
             <TextField
               variant="outlined"
               margin="normal"
               required
               fullWidth
-              focused
-              className='dobtxt'
               type="date"
               placeholder=""
               id="email"
@@ -374,19 +370,6 @@ const AddUser = (props) => {
               value={state.accountType || ""}
               onChange={handleInputChange}
             /> */}
-            <Select
-              variant="outlined"
-              required
-              fullWidth
-              id="accountType"
-              label="Account Type"
-              name="accountType"
-              value='admin'
-              onChange={handleInputChange}
-            >
-              <MenuItem value='admin'>Staff</MenuItem>
-              <MenuItem value='student'>student</MenuItem>
-            </Select>
 
             <div className={classes.btnGroup}>
               <Button
@@ -430,4 +413,4 @@ const AddUser = (props) => {
   );
 };
 
-export default AddUser;
+export default studentform;

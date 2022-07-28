@@ -6,6 +6,52 @@ import MaterialTable from "material-table";
 import Button from "@material-ui/core/Button";
 import { Grid } from "@material-ui/core";
 import Alert from "@material-ui/lab/Alert";
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import Typography from '@mui/material/Typography';
+import PropTypes from 'prop-types';
+import { styled } from '@mui/material/styles';
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
+
+const BootstrapDialogTitle = (props) => {
+  const { children, onClose, ...other } = props;
+
+  return (
+    <DialogTitle sx={{ m: 0, p: 2 }} {...other}>
+      {children}
+      {onClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
+    </DialogTitle>
+  );
+};
+
+BootstrapDialogTitle.propTypes = {
+  children: PropTypes.node,
+  onClose: PropTypes.func.isRequired,
+};
 
 const NoteTable = (props) => {
   const { useState } = React;
@@ -15,6 +61,23 @@ const NoteTable = (props) => {
   const [successMsg, setSuccessMsg] = useState([]);
   const [issucc, setIssucc] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [open, setOpen] = useState(false);
+  const [rowDataModal, setRowDataModal] = useState({
+    title: '',
+    description: ''
+  })
+
+  const handleClickOpen = (data) => {
+    console.log(data);
+    setRowDataModal({
+      title: data.title,
+      description: data.description
+    })
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
 
   //get all book details
   useEffect(() => {
@@ -118,6 +181,21 @@ const NoteTable = (props) => {
       <h1 id="h12" align="center">
         Notes
       </h1>
+      <BootstrapDialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+        fullWidth={true}
+      >
+        <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+          {rowDataModal.title}
+        </BootstrapDialogTitle>
+        <DialogContent dividers>
+          <Typography gutterBottom>
+            {rowDataModal.description}
+          </Typography>
+        </DialogContent>
+      </BootstrapDialog>
       <div className="tbl">
         <div>
           {iserror && (
@@ -161,7 +239,9 @@ const NoteTable = (props) => {
                 handleRowDelete(oldData, resolve);
               }),
           }}
-          onRowClick={((evt, selectedRow) => setSelectedRow(selectedRow.tableData.id))}
+          // onRowClick={((evt, selectedRow) => setSelectedRow(selectedRow.tableData.id))}
+          // onRowClick={() => { handleClickOpen() }}
+          onRowClick={(event, rowData) => handleClickOpen(rowData)}
           options={{
             headerStyle: {
               backgroundColor: "rgba(8, 9, 80, 0.363)",

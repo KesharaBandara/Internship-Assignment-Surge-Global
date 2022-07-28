@@ -7,13 +7,16 @@ import Grid from "@material-ui/core/Grid";
 import CheckIcon from "@material-ui/icons/Check";
 import ClearIcon from "@material-ui/icons/Clear";
 import Typography from "@material-ui/core/Typography";
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
 import { makeStyles } from "@material-ui/core/styles";
-import { DatePicker, KeyboardDatePicker, LocalizationProvider, MuiPickersUtilsProvider } from "@material-ui/pickers";
+import {
+  DatePicker,
+  KeyboardDatePicker,
+  LocalizationProvider,
+  MuiPickersUtilsProvider,
+} from "@material-ui/pickers";
 import MomentAdapter from "@material-ui/pickers/adapter/moment";
 import momentTimezone from "moment-timezone";
-import DateFnsUtils from '@date-io/date-fns';
+import DateFnsUtils from "@date-io/date-fns";
 
 import axios from "axios";
 import { API_URL } from "./Utils/constant";
@@ -26,8 +29,6 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import Draggable from "react-draggable";
-
-
 
 /**
  * draggable dialog component
@@ -102,15 +103,13 @@ const initialState = {
     password: "",
   },
 };
-const AddUser = (props) => {
+const UpdateUser = (props) => {
   let history = useHistory();
   const classes = useStyles();
   const [state, setState] = useState({
     firstName: "",
     lastName: "",
-    email: "",
     mobile: "",
-    accountType: "",
     password: "",
     dateOfBirth: new Date(),
     errors: {
@@ -131,21 +130,21 @@ const AddUser = (props) => {
       if (email.trim() !== "" && password.trim() !== "") {
         console.log(state);
 
-        await axios.post(`${API_URL}/user/insert`, state, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }).then(() => {
-          setSuccessMsg("upload Success");
-          setState(initialState);
-        }).catch((err) => {
-          console.log(err);
-          setErrorMsg("Please enter all the field values.");
-        })
-
-
+        await axios
+          .post(`${API_URL}/user/insert`, state, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          .then(() => {
+            setSuccessMsg("upload Success");
+            setState(initialState);
+          })
+          .catch((err) => {
+            console.log(err);
+            setErrorMsg("Please enter all the field values.");
+          });
       } else {
-
       }
     } catch (error) {
       error.response && setErrorMsg(error.response.data);
@@ -212,7 +211,7 @@ const AddUser = (props) => {
       <Grid item xs={12} sm={8} md={6} component={Paper} elevation={6} square>
         <div className={classes.paper}>
           <Typography component="h1" variant="h5">
-            Add New User
+            Update Your Details
           </Typography>
           <form className={classes.form} noValidate onSubmit={handleOnSubmit}>
             <div className={classes.alert}>
@@ -240,13 +239,13 @@ const AddUser = (props) => {
                         </div>
                       </>
                     ) : (
-                        <>
-                          <div style={{ color: "#aa202b" }}>
-                            <ClearIcon />
-                            {errorMsg}
-                          </div>
-                        </>
-                      )}
+                      <>
+                        <div style={{ color: "#aa202b" }}>
+                          <ClearIcon />
+                          {errorMsg}
+                        </div>
+                      </>
+                    )}
                   </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -288,27 +287,6 @@ const AddUser = (props) => {
               margin="normal"
               required
               fullWidth
-              id="email"
-              label="E- mail address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={state.email || ""}
-              onChange={handleInputChange}
-            />
-
-
-            {errors.email.length > 0 && (
-              <span className="error">{errors.email}</span>
-            )}
-
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              focused
-              className='dobtxt'
               type="date"
               placeholder=""
               id="email"
@@ -318,17 +296,7 @@ const AddUser = (props) => {
               value={state.dateOfBirth || ""}
               onChange={handleInputChange}
             />
-            {/* <LocalizationProvider dateAdapter={DateFnsUtils}>
-              <DatePicker
-                autoOk
-                variant="inline"
-                inputVariant="outlined"
-                label="With keyboard"
-                format="MM/dd/yyyy"
-                value={selectedDate}
-                onChange={date => handleDateChange(date)}
-              />
-            </LocalizationProvider> */}
+
             <TextField
               variant="outlined"
               margin="normal"
@@ -361,38 +329,13 @@ const AddUser = (props) => {
               <span className="error">{errors.password}</span>
             )}
 
-            {/* <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="accountType"
-              label="Account Type"
-              name="accountType"
-              autoComplete="accountType"
-              autoFocus
-              value={state.accountType || ""}
-              onChange={handleInputChange}
-            /> */}
-            <Select
-              variant="outlined"
-              required
-              fullWidth
-              id="accountType"
-              label="Account Type"
-              name="accountType"
-              value='admin'
-              onChange={handleInputChange}
-            >
-              <MenuItem value='admin'>Staff</MenuItem>
-              <MenuItem value='student'>student</MenuItem>
-            </Select>
-
             <div className={classes.btnGroup}>
               <Button
                 id="btnBack"
                 type="button"
-                onClick={() => { history.push("/home") }}
+                onClick={() => {
+                  history.push("/home");
+                }}
                 fullWidth
                 variant="contained"
                 color="primary"
@@ -430,4 +373,4 @@ const AddUser = (props) => {
   );
 };
 
-export default AddUser;
+export default UpdateUser;

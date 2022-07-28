@@ -20,8 +20,8 @@ module.exports = {
             port: 587,
             secure: false, // true for 465, false for other ports
             auth: {
-                user: 'sheshannarada@gmail.com', // generated ethereal user
-                pass: 'fgjbmuuavoxatwgs'  // generated ethereal password
+                user: 'kesharawalisundara@gmail.com', // generated ethereal user
+                pass: 'rfxoynpueezuqvdk'  // generated ethereal password
             },
             tls: {
                 rejectUnauthorized: false
