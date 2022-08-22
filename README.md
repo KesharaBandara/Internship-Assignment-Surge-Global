@@ -1,5 +1,3 @@
-# Internship-Assignment-Surge-Global
-
 There are two logings in the system namely admin and the student.
 
 Admin can create users by providing first name,last name, email, Date of birth, mobile, status, password(tempary) and acccount type.
